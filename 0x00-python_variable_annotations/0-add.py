@@ -1,16 +1,17 @@
 #!/usr/bin/env python3
-'''Task 0 - Basic annotations - add
-'''
-
+"""
+Module for basic annotations - add
+"""
 
 def add(a: float, b: float) -> float:
-    '''Returns the sum of two floats.
+    """
+    Adds two float numbers.
 
     Args:
-        a (float): first float
-        b (float): second float
+        a (float): The first number.
+        b (float): The second number.
 
     Returns:
-        float: sum of a and b
-    '''
-    return float(a + b)
+        float: The sum of the two numbers.
+    """
+    return a + b
