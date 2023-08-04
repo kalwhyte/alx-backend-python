@@ -3,6 +3,7 @@
 '''
 from typing import Any, Mapping, TypeVar, Union
 
+
 T = TypeVar('T')
 Res = Union[Any, T]
 Def = Union[T, None]
