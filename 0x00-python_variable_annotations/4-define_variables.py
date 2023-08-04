@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
-"""Basic annotations task 4
-"""
+'''Basic annotations task 4
+'''
 
 
 a: int = 1
