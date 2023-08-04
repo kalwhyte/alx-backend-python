@@ -7,6 +7,12 @@ and returns the floor of the float.
 
 def floor(n: float) -> int:
     """
-    This function takes a float n as argument and returns the floor of the float.
+    Return the floor of the float.
+
+    Args:
+        n (float): The float to floor.
+
+    Returns:
+        int: The floored float.
     """
     return int(n)
