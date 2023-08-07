@@ -5,7 +5,6 @@
 
 import asyncio
 import random
-import time
 wait_random = __import__('0-basic_async_syntax').wait_random
 
 
