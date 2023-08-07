@@ -1,7 +1,6 @@
 #!/usr/bin/env python3
 """ 
-    Use the (async) measure_time function to execute the wait_n function
-    with n iterations.
+    Using the (async) measure_time function
 """
 import asyncio
 import time
@@ -19,4 +18,4 @@ def measure_time(n: int, max_delay: int) -> float:
     asyncio.run(wait_n(n, max_delay))
     end = time.perf_counter()
     total_time = end - start
-    return (end - start) / n
+    return (total_time) / n
