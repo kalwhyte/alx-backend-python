@@ -40,12 +40,11 @@ class TestGetJson(unittest.TestCase):
     @unittest.mock.patch('requests.get')
     def test_get_json(self, test_url, test_payload):
         """ Test that utils.get_json returns the expected result """
-        mock_response = unittest.mock_get.return_value
+        mock_response = unittest.mock.Mock()
         mock_response.json.return_value = test_payload
-
-        result = utils.get_json(test_url)
-        self.assertEqual(result, test_payload)
-        mock_response.get.assert_called_once_with()
+        mock_response.status_code = 200
+        with unittest.mock.patch('requests.get', return_value=mock_response):
+            self.assertEqual(utils.get_json(test_url), test_payload)
 
 
 class TestMemoize(unittest.TestCase):
