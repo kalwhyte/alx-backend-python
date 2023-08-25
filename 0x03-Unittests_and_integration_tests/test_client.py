@@ -16,25 +16,32 @@ class TestGithubOrgClient(unittest.TestCase):
         ("google"),
         ("abc"),
     ])
-    @patch('client.get_json')
-    def test_org(self, test_org, mock_get_json):
+    @patch('client.GithubOrgClient.get_json')
+    def test_org(self, org_name, mock_get_json):
         """ Test that GithubOrgClient.org returns the correct value """
-        test_class = GithubOrgClient(test_org)
-        test_class.org()
+        expected_result = {"name": org_name}
+        mock_get_json.return_value = expected_result
+
+        client = GithubOrgClient(org_name)
+        result = client.org
+
+        self.assertEqual(result, expected_result)
         mock_get_json.assert_called_once_with(
-            f'https://api.github.com/orgs/{test_org}'
+            "https://api.github.com/orgs/{}".format(org_name)
         )
 
-    def test_public_repos_url(self):
+    @patch('client.GithubOrgClient.org')
+    def test_public_repos_url(self, mock_org):
         """ Test that the result of _public_repos_url is the expected one
-        based on the mocked payload
+            based on the mocked payload
         """
-        test_class = GithubOrgClient("test")
-        test_class.org = TEST_PAYLOAD
-        self.assertEqual(
-            test_class._public_repos_url,
-            TEST_PAYLOAD['repos_url']
-        )
+        org_payload = {"repos_url": "https://api.github.com/orgs/google/repos"}
+        mock_org.return_value = org_payload
+
+        client = GithubOrgClient("google")
+        result = client._public_repos_url
+
+        self.assertEqual(result, "https://api.github.com/orgs/google/repos")
 
     @patch('client.get_json')
     def test_public_repos(self, mock_get_json):
@@ -76,5 +83,3 @@ class TestGithubOrgClient(unittest.TestCase):
         mock_get_json.assert_called_once_with(
             'https://api.github.com/orgs/test/repos'
         )
-
-    @patch('client.get_json')
