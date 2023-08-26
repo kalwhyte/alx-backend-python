@@ -5,6 +5,8 @@
 from parameterized import parameterized, parameterized_class
 import unittest
 import utils
+import requests
+from unittest.mock import patch, Mock
 
 
 class TestAccessNestedMap(unittest.TestCase):
@@ -43,7 +45,8 @@ class TestGetJson(unittest.TestCase):
         mock_response = unittest.mock.Mock()
         mock_response.json.return_value = test_payload
         mock_response.status_code = 200
-        with unittest.mock.patch('requests.get', return_value=mock_response):
+        with unittest.mock.patch(
+                'requests.get', return_value=mock_response):
             self.assertEqual(utils.get_json(test_url), test_payload)
 
 
@@ -51,8 +54,8 @@ class TestMemoize(unittest.TestCase):
     """ Class for testing memoize decorator """
 
     def test_memoize(self):
-        """ Test that when calling a_property twice, the correct result is
-        returned but a_method is only called once using assert_called_once
+        """ Test that when calling a_property twice,
+            the correct result is returned but a_method is only called once
         """
         class TestClass:
             """ TestClass that inherits from BaseClass """
@@ -71,7 +74,3 @@ class TestMemoize(unittest.TestCase):
             test_class.a_property()
             test_class.a_property()
             mock.assert_called_once()
-
-
-if __name__ == '__main__':
-    unittest.main()
