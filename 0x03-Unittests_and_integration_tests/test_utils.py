@@ -2,9 +2,11 @@
 """ Parameterize a unit test """
 
 
+from unittest import mock
 from parameterized import parameterized, parameterized_class
 import unittest
 import utils
+from utils import access_nested_map, get_json
 import requests
 from unittest.mock import patch, Mock
 
@@ -33,21 +35,30 @@ class TestAccessNestedMap(unittest.TestCase):
 
 
 class TestGetJson(unittest.TestCase):
-    """ Class for testing get_json function """
-
+    """ Class for testing get_json function
+    """
     @parameterized.expand([
         ("http://example.com", {"payload": True}),
         ("http://holberton.io", {"payload": False}),
     ])
-    @unittest.mock.patch('requests.get')
+    @mock.patch('requests.get')
     def test_get_json(self, test_url, test_payload):
-        """ Test that utils.get_json returns the expected result """
-        mock_response = unittest.mock.Mock()
-        mock_response.json.return_value = test_payload
-        mock_response.status_code = 200
-        with unittest.mock.patch(
-                'requests.get', return_value=mock_response):
-            self.assertEqual(utils.get_json(test_url), test_payload)
+        """ Test that utils.get_json returns the expected result
+            for the mocked requests.get
+
+        Args:
+            test_url ([type]): [description]
+            test_payload ([type]): [description]
+
+        Returns:
+            [type]: [description]
+        """
+        mock_response = mock.MagicMock()
+        mock_response.json = lambda: test_payload
+        with mock.patch("requests.get", create=True,
+                        return_value=mock_response) as mock_get:
+            self.assertEqual(get_json(test_url), test_payload)
+            mock_get.assert_called_once_with(test_url)
 
 
 class TestMemoize(unittest.TestCase):
@@ -55,10 +66,12 @@ class TestMemoize(unittest.TestCase):
 
     def test_memoize(self):
         """ Test that when calling a_property twice,
-            the correct result is returned but a_method is only called once
+            the correct result is returned but a_method 
+            is only called once
         """
         class TestClass:
-            """ TestClass that inherits from BaseClass """
+            """ TestClass that inherits from BaseClass
+            """
 
             def a_method(self):
                 """ Returns the attribute 'a' """
