@@ -56,20 +56,29 @@ class TestGithubOrgClient(unittest.TestCase):
         self.assertEqual(result, expected_url)
 
     @patch('client.GithubOrgClient.get_json')
-    @patch('client.GithubOrgClient._public_repos_url')
-    def test_public_repos(self, mock_public_repos_url, mock_get) -> None:
-        """ Test GithubOrgClient.public_repos method """
-        expected_repos = [{"name": "google"}, {"name": "abc"}]
+    @patch('client.GithubOrgClient._public_repos_url',
+           new_callable=PropertyMock)
+    def test_public_repos(self, mock_org: MagicMock, mock_get: MagicMock) -> None:
+        """ Test GithubOrgClient.public_repos method 
 
-        mock_public_repos_url.return_value = 'https://api.github.com/orgs/testorg/repos'
-        mock_get.return_value = expected_repos
+        Args:
+            mock_org (MagicMock): [description]
+            mock_get (MagicMock): [description]
+        """
+        mock_payload = [
+            {"name": "repo1"},
+            {"name": "repo2"},
+            {"name": "repo3"},
+        ]
+        mock_get.return_value = mock_payload
 
         test_class = GithubOrgClient('testorg')
-        repos = test_class.public_repos()
+        result = test_class.public_repos()
 
-        self.assertEqual(repos, expected_repos)
-        mock_get.assert_called_once_with(
-            'https://api.github.com/orgs/testorg/repos')
+        expected = ["repo1", "repo2", "repo3"]
+        self.assertEqual(result, mock_payload)
+        mock_org.assert_called_once_with()
+        mock_get.assert_called_once_with(mock_org.return_value)
 
 
 if __name__ == '__main__':
