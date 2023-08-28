@@ -2,11 +2,23 @@
 """ Parameterize and patch as decorators """
 
 
-from parameterized import parameterized
-from unittest.mock import patch
 import unittest
+from fixtures import TEST_PAYLOAD
+from typing import Dict
+from parameterized import parameterized, parameterized_class
+from requests import HTTPError
 from client import GithubOrgClient
-from utils import get_json, access_nested_map, memoize
+from unittest.mock import (
+    patch,
+    Mock,
+    PropertyMock,
+    MagicMock
+)
+from utils import (
+    get_json,
+    access_nested_map,
+    memoize
+)
 
 
 class TestGithubOrgClient(unittest.TestCase):
@@ -15,13 +27,14 @@ class TestGithubOrgClient(unittest.TestCase):
         ("google"),
         ("abc"),
     ])
-    @patch('client.get_json')
-    def test_org(self, test_org, mock_get_json):
-        """ Test that GithubOrgClient.org returns the correct value """
+    @patch("client.get_json")
+    def test_org(self, test_org: str, resp: Dict, mocked_whyte: MagicMock) -> None:
+        """ Test GithubOrgClient.org method """
+        mocked_whyte.return_value = MagicMock(return_value=resp)
         test_class = GithubOrgClient(test_org)
-        test_class.org()
-        mock_get_json.assert_called_once_with(
-            f'https://api.github.com/orgs/{test_org}'
+        self.assertEqual(test_class.org(), resp)
+        mocked_whyte.assert_called_once_with(
+            "https://api.github.com/orgs/{}".format(test_org)
         )
 
     # @patch('client.GithubOrgClient.org')
