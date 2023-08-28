@@ -39,69 +39,23 @@ class TestGithubOrgClient(unittest.TestCase):
             "https://api.github.com/orgs/{}".format(test_org)
         )
 
-    # @patch('client.GithubOrgClient.org')
-    # def test_public_repos_url(self, mock_org):
-        """ Test that the result of _public_repos_url is the expected one
-            based on the mocked payload
-        """
-        ''' org_payload = {"repos_url": "https://api.github.com/orgs/google/repos"}
-        mock_org.return_value = org_payload
+    @patch('client.GithubOrgClient._public_repos_url',
+           new_callable=PropertyMock)
+    def test_public_repos_url(self, mock_org: MagicMock) -> None:
+        """ Test GithubOrgClient._public_repos_url
 
-        client = GithubOrgClient("google")
-        result = client._public_repos_urlThis file is mandatory in projects
-
-        self.assertEqual(result, "https://api.github.com/orgs/google/repos")
-
-    @patch('client.get_json')
-    def test_public_repos(self, mock_get_json):
-        """ Test that the list of repos is what you expect from the chosen
-        payload
+        Args:
+            mock_public_repos_url (MagicMock): [description]
         """
-        mock_get_json.return_value = [
-            {'name': 'google'},
-            {'name': 'abc'},
-        ]
-        test_class = GithubOrgClient("test")
-        self.assertEqual(
-            test_class.public_repos(),
-            ['google', 'abc']
-        )
-        mock_get_json.assert_called_once_with(
-            'https://api.github.com/orgs/test/repos'
-        )
+        mock_payload = {
+            "repos_url": 'http://api.github.com/orgs/testorg/repos'}
+        mock_org.return_value = mock_payload
 
-    @patch('client.get_json')
-    def test_public_repos_with_license(self, mock_get_json):
-        """ Test that the list of repos is what you expect from the chosen
-        payload
-        """
-        mock_get_json.return_value = [
-            {'name': 'google', 'license': {'key': 'a'}},
-            {'name': 'abc', 'license': {'key': 'b'}},
-            {'name': 'abc', 'license': {'key': 'c'}},
-        ]
-        test_class = GithubOrgClient("test")
-        self.assertEqual(
-            test_class.public_repos('a'),
-            ['google']
-        )
-        self.assertEqual(
-            test_class.public_repos('c'),
-            ['abc', 'abc']
-        )
-        mock_get_json.assert_called_once_with(
-            'https://api.github.com/orgs/test/repos'
-        )
+        test_class = GithubOrgClient("testorg")
+        result = test_class._public_repos_url()
 
-    @patch('client.get_json')
-    def test_public_repos_url(self, mock_get_json):
-        """ Test that the result of _public_repos_url is the expected one
-            based on the mocked payload
-        """
-        org_payload = {"repos_url": "https://api.github.com/orgs/google/repos"}
-        mock_get_json.return_value = org_payload
-        """
-'''
+        expected_url = 'https://api.github.com/orgs/testorg/repos'
+        self.assertEqual(result, expected_url)
 
 
 if __name__ == '__main__':
