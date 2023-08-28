@@ -42,7 +42,7 @@ class TestGetJson(unittest.TestCase):
         ("http://holberton.io", {"payload": False}),
     ])
     @mock.patch('requests.get')
-    def test_get_json(self, test_url, test_payload):
+    def test_get_json(self, test_url, expected, mock_get):
         """ Test that utils.get_json returns the expected result
             for the mocked requests.get
 
@@ -54,10 +54,10 @@ class TestGetJson(unittest.TestCase):
             [type]: [description]
         """
         mock_response = mock.MagicMock()
-        mock_response.json = lambda: test_payload
+        mock_response.json = lambda: expected
         with mock.patch("requests.get", create=True,
                         return_value=mock_response) as mock_get:
-            self.assertEqual(get_json(test_url), test_payload)
+            self.assertEqual(get_json(test_url), expected)
             mock_get.assert_called_once_with(test_url)
 
 
@@ -87,3 +87,7 @@ class TestMemoize(unittest.TestCase):
             test_class.a_property()
             test_class.a_property()
             mock.assert_called_once()
+
+
+if __name__ == '__main__':
+    unittest.main()
