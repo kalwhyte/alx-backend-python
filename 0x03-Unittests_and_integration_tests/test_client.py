@@ -57,7 +57,11 @@ class TestGithubOrgClient(unittest.TestCase):
 
     @patch('client.get_json')
     def test_public_repos(self, mock_get: MagicMock) -> None:
-        """ Test GithubOrgClient.public_repos"""
+        """ Test GithubOrgClient.public_repos
+
+        Args:
+            mock_get (MagicMock): [description]
+        """
         mock_get.return_value = TEST_PAYLOAD
         with patch.object(GithubOrgClient, '_public_repos_url',
                           new_callable=PropertyMock) as mock_public_repos_url:
