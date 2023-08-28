@@ -14,11 +14,7 @@ from unittest.mock import (
     PropertyMock,
     MagicMock
 )
-from utils import (
-    get_json,
-    access_nested_map,
-    memoize
-)
+from utils import get_json, access_nested_map, memoize
 
 
 class TestGithubOrgClient(unittest.TestCase):
@@ -27,9 +23,15 @@ class TestGithubOrgClient(unittest.TestCase):
         ("google"),
         ("abc"),
     ])
-    @patch("client.get_json")
+    @patch('client.get_json')
     def test_org(self, test_org: str, resp: Dict, mocked_whyte: MagicMock) -> None:
-        """ Test GithubOrgClient.org method """
+        """ Test GithubOrgClient.org method 
+
+        Args:
+            test_org (str): [description]
+            resp (Dict): [description]
+            mocked_whyte (MagicMock): [description]
+        """
         mocked_whyte.return_value = MagicMock(return_value=resp)
         test_class = GithubOrgClient(test_org)
         self.assertEqual(test_class.org(), resp)
