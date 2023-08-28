@@ -6,7 +6,11 @@ from unittest import mock
 from parameterized import parameterized, parameterized_class
 import unittest
 import utils
-from utils import access_nested_map, get_json
+from utils import (
+    access_nested_map,
+    get_json,
+    memoize
+)
 import requests
 from unittest.mock import patch, Mock
 
@@ -64,31 +68,27 @@ class TestGetJson(unittest.TestCase):
 class TestMemoize(unittest.TestCase):
     """ Class for testing memoize decorator """
 
-    def test_memoize(self):
-        """ Test that when calling a_property twice, the correct 
-        result is returned but a_method is only called once
-
-        Returns:
-            [type]: [description]
-        """
+    def test_memoize(self) -> None:
+        """ Test memoize decorator """
         class TestClass:
             """ TestClass that inherits from BaseClass """
 
             def a_method(self) -> int:
-                """ Returns the attribute 'a' """
                 return 42
 
-            @utils.memoize
+            @memoize
             def a_property(self) -> int:
                 """ Returns memoized property """
                 return self.a_method()
 
-        test_class = TestClass()
-        with patch.object(TestClass, 'a_method') as mock_me:
-            mock_me.return_value = 42
-            self.assertEqual(test_class.a_property, 42)
-            self.assertEqual(test_class.a_property, 42)
-            mock_me.assert_called_once()
+        with patch.object(
+            TestClass,
+            'a_method', return_value=lambda: 42,
+        ) as whyte:
+            test_class = TestClass()
+            self.assertEqual(test_class.a_property(), 42)
+            self.assertEqual(test_class.a_property(), 42)
+            whyte.assert_called_once()
 
 
 if __name__ == '__main__':
