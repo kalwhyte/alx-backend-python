@@ -28,7 +28,6 @@ class TestGithubOrgClient(unittest.TestCase):
         """ Test GithubOrgClient.org method 
 
         Args:
-            test_org (str): [description]
             mocked_whyte (MagicMock): [description]
         """
         mocked_whyte.return_value = MagicMock(return_value=resp)
@@ -55,6 +54,22 @@ class TestGithubOrgClient(unittest.TestCase):
 
         expected_url = 'https://api.github.com/orgs/testorg/repos'
         self.assertEqual(result, expected_url)
+
+    @patch('client.get_json')
+    def test_public_repos(self, mock_get: MagicMock) -> None:
+        """ Test GithubOrgClient.public_repos
+
+        Args:
+            mock_get (MagicMock): [description]
+        """
+        mock_get.return_value = TEST_PAYLOAD
+        with patch.object(GithubOrgClient, '_public_repos_url',
+                          new_callable=PropertyMock) as mock_public_repos_url:
+            mock_public_repos_url.return_value = 'https://api.github.com/orgs/testorg/repos'
+            test_class = GithubOrgClient("test")
+            test_class.public_repos()
+            mock_get.assert_called_once_with(
+                'https://api.github.com/orgs/testorg/repos')
 
 
 if __name__ == '__main__':
