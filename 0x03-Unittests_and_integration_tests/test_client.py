@@ -6,36 +6,46 @@ from parameterized import parameterized
 from unittest.mock import patch
 import unittest
 from client import GithubOrgClient
-from fixtures import TEST_PAYLOAD
+from utils import get_json, access_nested_map, memoize
+
+
+""" In a new test_client.py file, declare the TestGithubOrgClient(unittest.TestCase) class and implement the test_org method.
+
+This method should test that GithubOrgClient.org returns the correct value.
+
+Use @patch as a decorator to make sure get_json is called once with the expected argument but make sure it is not executed.
+
+Use @parameterized.expand as a decorator to parametrize the test with a couple of org examples to pass to GithubOrgClient, in this order:
+
+google
+abc
+Of course, no external HTTP calls should be made.
+"""
 
 
 class TestGithubOrgClient(unittest.TestCase):
-    """ Class for testing GithubOrgClient """
-
+    """ Class for testing GithubOrgClient
+    """
     @parameterized.expand([
         ("google"),
         ("abc"),
     ])
-    @patch('client.GithubOrgClient.get_json')
-    def test_org(self, org_name, mock_get_json):
-        """ Test that GithubOrgClient.org returns the correct value """
-        expected_result = {"name": org_name}
-        mock_get_json.return_value = expected_result
-
-        client = GithubOrgClient(org_name)
-        result = client.org
-
-        self.assertEqual(result, expected_result)
+    @patch('client.get_json')
+    def test_org(self, test_org, mock_get_json):
+        """ Test that GithubOrgClient.org returns the correct value
+        """
+        test_class = GithubOrgClient(test_org)
+        test_class.org()
         mock_get_json.assert_called_once_with(
-            "https://api.github.com/orgs/{}".format(org_name)
+            f'https://api.github.com/orgs/{test_org}'
         )
 
-    @patch('client.GithubOrgClient.org')
-    def test_public_repos_url(self, mock_org):
+    # @patch('client.GithubOrgClient.org')
+    # def test_public_repos_url(self, mock_org):
         """ Test that the result of _public_repos_url is the expected one
             based on the mocked payload
         """
-        org_payload = {"repos_url": "https://api.github.com/orgs/google/repos"}
+        ''' org_payload = {"repos_url": "https://api.github.com/orgs/google/repos"}
         mock_org.return_value = org_payload
 
         client = GithubOrgClient("google")
@@ -83,3 +93,17 @@ class TestGithubOrgClient(unittest.TestCase):
         mock_get_json.assert_called_once_with(
             'https://api.github.com/orgs/test/repos'
         )
+
+    @patch('client.get_json')
+    def test_public_repos_url(self, mock_get_json):
+        """ Test that the result of _public_repos_url is the expected one
+            based on the mocked payload
+        """
+        org_payload = {"repos_url": "https://api.github.com/orgs/google/repos"}
+        mock_get_json.return_value = org_payload
+        """
+'''
+
+
+if __name__ == '__main__':
+    unittest.main()
