@@ -65,28 +65,30 @@ class TestMemoize(unittest.TestCase):
     """ Class for testing memoize decorator """
 
     def test_memoize(self):
-        """ Test that when calling a_property twice,
-            the correct result is returned but a_method 
-            is only called once
+        """ Test that when calling a_property twice, the correct 
+        result is returned but a_method is only called once
+
+        Returns:
+            [type]: [description]
         """
         class TestClass:
-            """ TestClass that inherits from BaseClass
-            """
+            """ TestClass that inherits from BaseClass """
 
-            def a_method(self):
+            def a_method(self) -> int:
                 """ Returns the attribute 'a' """
                 return 42
 
             @utils.memoize
-            def a_property(self):
+            def a_property(self) -> int:
                 """ Returns memoized property """
                 return self.a_method()
 
-        with unittest.mock.patch.object(TestClass, 'a_method') as mock:
-            test_class = TestClass()
-            test_class.a_property()
-            test_class.a_property()
-            mock.assert_called_once()
+        test_class = TestClass()
+        with patch.object(TestClass, 'a_method') as mock_me:
+            mock_me.return_value = 42
+            self.assertEqual(test_class.a_property, 42)
+            self.assertEqual(test_class.a_property, 42)
+            mock_me.assert_called_once()
 
 
 if __name__ == '__main__':
