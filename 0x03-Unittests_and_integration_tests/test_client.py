@@ -29,7 +29,6 @@ class TestGithubOrgClient(unittest.TestCase):
 
         Args:
             test_org (str): [description]
-            resp (Dict): [description]
             mocked_whyte (MagicMock): [description]
         """
         mocked_whyte.return_value = MagicMock(return_value=resp)
