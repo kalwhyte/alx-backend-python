@@ -20,21 +20,17 @@ from utils import get_json, access_nested_map, memoize
 class TestGithubOrgClient(unittest.TestCase):
     """ Class for testing GithubOrgClient """
     @parameterized.expand([
-        ("google"),
-        ("abc"),
+        ('google', {'login': 'google'}),
+        ('abc', {'login': 'abc'}),
     ])
     @patch('client.get_json')
     def test_org(self, test_org: str, resp: Dict, mocked_whyte: MagicMock) -> None:
-        """ Test GithubOrgClient.org method 
-
-        Args:
-            mocked_whyte (MagicMock): [description]
-        """
+        """ Test GithubOrgClient.org method """
         mocked_whyte.return_value = MagicMock(return_value=resp)
-        test_class = GithubOrgClient(test_org)
-        self.assertEqual(test_class.org(), resp)
+        whyte_class = GithubOrgClient(test_org)
+        self.assertEqual(whyte_class.org(), resp)
         mocked_whyte.assert_called_once_with(
-            "https://api.github.com/orgs/{}".format(test_org)
+            'https://api.github.com/orgs/{}'.format(test_org)
         )
 
     @patch('client.GithubOrgClient._public_repos_url',
@@ -96,7 +92,7 @@ class TestGithubOrgClient(unittest.TestCase):
             ]
         }
         mock_get.return_value = mock_payload['repos']
-        with patch(
+        with patch.object(
             'client.GithubOrgClient._public_repos_url',
                 new_callable=PropertyMock) as mock_public_repos_url:
             mock_public_repos_url.return_value = mock_payload['repos_url']
@@ -114,10 +110,25 @@ class TestGithubOrgClient(unittest.TestCase):
         ({'license': {'key': 'my_license'}}, 'my_license', True),
         ({'license': {'key': 'other_license'}}, 'my_license', False),
     ])
-    def test_has_license(self, repo: Dict, license_key: str, expected: bool) -> None:
+    @patch('client.get_json')
+    def test_has_license(self, repo: Dict, license_key: str,
+                         expected: bool, mock_get: MagicMock) -> None:
         """ Test GithubOrgClient.has_license method """
-        result = GithubOrgClient.has_license(repo, license_key)
-        self.assertEqual(result, expected)
+        mock_payload = {
+            'repos_url': 'https://api.github.com/orgs/google/repos',
+            'repos': [repo]
+        }
+        mock_get.return_value = mock_payload['repos']
+        with patch(
+            'client.GithubOrgClient._public_repos_url',
+                new_callable=PropertyMock) as mock_public_repos_url:
+            mock_public_repos_url.return_value = mock_payload['repos_url']
+            self.assertEqual(
+                GithubOrgClient('google').has_license(license_key),
+                expected
+            )
+            mock_public_repos_url.assert_called_once_with()
+        mock_get.assert_called_once_with(mock_payload['repos_url'])
 
 
 if __name__ == '__main__':
