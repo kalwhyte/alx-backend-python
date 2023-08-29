@@ -93,7 +93,7 @@ class TestGithubOrgClient(unittest.TestCase):
         }
         mock_get.return_value = mock_payload['repos']
         with patch.object(
-            'client.GithubOrgClient._public_repos_url',
+            GithubOrgClient, '_public_repos_url',
                 new_callable=PropertyMock) as mock_public_repos_url:
             mock_public_repos_url.return_value = mock_payload['repos_url']
             self.assertEqual(
@@ -124,7 +124,7 @@ class TestGithubOrgClient(unittest.TestCase):
                 new_callable=PropertyMock) as mock_public_repos_url:
             mock_public_repos_url.return_value = mock_payload['repos_url']
             self.assertEqual(
-                GithubOrgClient('google').has_license(license_key),
+                GithubOrgClient('google').has_license(license_key, repo),
                 expected
             )
             mock_public_repos_url.assert_called_once_with()
