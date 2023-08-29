@@ -111,22 +111,20 @@ class TestGithubOrgClient(unittest.TestCase):
         ({'license': {'key': 'other_license'}}, 'my_license', False),
     ])
     @patch('client.get_json')
-    def test_has_license(self, repo: Dict, license_key: str,
-                         expected: bool, mock_get: MagicMock) -> None:
+    def test_has_license(self, repo: Dict, license_key: str, expected: bool, mock_get: MagicMock) -> None:
         """ Test GithubOrgClient.has_license method """
         mock_payload = {
-            'repos_url': 'https://api.github.com/orgs/google/repos',
+            'repos_url': 'https://api.github.com/repos/google/repos',
             'repos': [repo]
         }
         mock_get.return_value = mock_payload['repos']
-        with patch(
-            'client.GithubOrgClient._public_repos_url',
+        with patch.object(
+            GithubOrgClient, '_public_repos_url',
                 new_callable=PropertyMock) as mock_public_repos_url:
             mock_public_repos_url.return_value = mock_payload['repos_url']
-            self.assertEqual(
-                GithubOrgClient('google').has_license(license_key, repo),
-                expected
-            )
+            whyte_class = GithubOrgClient('test')
+            result = whyte_class.has_license(repo, license_key)
+            self.assertEqual(result, expected)
             mock_public_repos_url.assert_called_once_with()
         mock_get.assert_called_once_with(mock_payload['repos_url'])
 
