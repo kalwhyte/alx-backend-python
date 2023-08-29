@@ -129,5 +129,53 @@ class TestGithubOrgClient(unittest.TestCase):
         mock_get.assert_called_once_with(mock_payload['repos_url'])
 
 
+@parameterized_class([
+    {'org_payload': {'repos_url': 'https://api.github.com/orgs/google/repos'},
+     'repos_payload': [{'name': 'google'}],
+     'expected_repos': ['google'],
+     'apache2_repos': ['google']},
+    {'org_payload': {'repos_url': 'https://api.github.com/orgs/google/repos'},
+     'repos_payload': [{'name': 'abc'}],
+     'expected_repos': ['abc'],
+     'apache2_repos': ['abc']},
+])
+class TestIntegrationGithubOrgClient(unittest.TestCase):
+    """ Class for testing GithubOrgClient """
+
+    def setUpClass(self) -> None:
+        """ Set up for testing """
+        config = {
+            'return_value.json.side_effect': [
+                self.org_payload, self.repos_payload,
+                self.org_payload, self.repos_payload
+            ]
+        }
+        self.get_patcher = patch('requests.get', **config)
+        self.mocked_get = self.get_patcher.start()
+
+    def tearDownClass(self) -> None:
+        """ Tear down for testing """
+        self.get_patcher.stop()
+
+    def test_public_repos(self) -> None:
+        """ Test GithubOrgClient.public_repos method """
+        whyte_class = GithubOrgClient('google')
+        self.assertEqual(whyte_class.public_repos(), self.expected_repos)
+        self.assertEqual(whyte_class.public_repos(
+            'apache-2.0'), self.apache2_repos)
+        self.mocked_get.assert_called()
+
+    def test_public_repos_with_license(self) -> None:
+        """ Test GithubOrgClient.public_repos method implement logic to
+        test the public_repos method with the argument license="apache-2.0"
+        """
+        whyte_class = GithubOrgClient('google')
+        self.assertEqual(whyte_class.public_repos(
+            'apache-2.0'), self.apache2_repos)
+        self.assertEqual(whyte_class.public_repos(
+            'bsd'), [])
+        self.mocked_get.assert_called()
+
+
 if __name__ == '__main__':
     unittest.main()
